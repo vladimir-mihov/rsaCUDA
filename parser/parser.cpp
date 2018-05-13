@@ -94,7 +94,7 @@ vector<T> parser::split( string& input, const char *delims, T (*callback)( const
 	part = strtok( inputCstr, delims );
 	while( part != NULL )
 	{
-		returnVector.push_back( atoi(part) );
+		returnVector.push_back( callback(part) );
 		part = strtok( NULL, delims );
 	}
 
