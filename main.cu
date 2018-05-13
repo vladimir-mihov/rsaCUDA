@@ -1,0 +1,110 @@
+#include <iostream>
+#include <chrono>
+#include <vector>
+#include <math.h>
+#include <cuComplex.h>
+#include "mandelbrotData.hpp"
+#include "parser/parser.hpp"
+#include "lodepng/lodepng.h"
+
+using uchar = unsigned char;
+using namespace std;
+
+#define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
+inline void gpuAssert(cudaError_t code, const char *file, int line)
+{
+   if (code != cudaSuccess) 
+   {
+      fprintf(stderr,"GPUAssert: %s %s %d\n", cudaGetErrorString(code), file, line);
+   }
+}
+
+__device__ __forceinline__ cuDoubleComplex cuExp( cuDoubleComplex z )
+{
+	double t = exp( z.x );
+	return make_cuDoubleComplex( t*cos(z.y), t*sin(z.y) );
+}
+
+__global__ void mandelbrot( mandelbrotData *data, uchar *result ) {
+	int index = blockDim.x*blockIdx.x + threadIdx.x;
+	int col = index % data->width;
+	int row = index / data->width;
+
+	cuDoubleComplex c = make_cuDoubleComplex( data->startX + col*data->stepX, data->startY - row*data->stepY ),
+					z = make_cuDoubleComplex( 0.0, 0.0 );
+	uchar iterations = 0;
+
+	while( z.x*z.x+z.y*z.y < 4 && iterations < 255 )
+	{
+		z = cuCsub( cuExp(z), c );
+		iterations++;
+	}
+	result[index] = iterations;
+}
+
+void writePNG( uchar *result, string& outputFilename, mandelbrotData& data );
+
+int main( int argc, char ** argv ) {
+	// initial variables
+	uchar *result, *d_result;
+	mandelbrotData data, *d_data;
+	string outputFilename;
+	bool quiet;
+
+	// initialize variables without leaving junk
+	{
+		parser cmd;
+		programOptions opts;
+		try {
+			opts = cmd.parse(argc,argv);
+		} catch ( const exception& e ) {
+			cout << e.what() << endl;
+			return 1;
+		}
+		data = mandelbrotData( opts.width, opts.height, opts.startX, opts.endX, opts.startY, opts.endY );
+		outputFilename = opts.outputFilename;
+		quiet = opts.quiet;
+	}
+
+	result = new uchar[data.pixels];
+
+	gpuErrchk( cudaMalloc((void **)&d_result, data.pixels) );
+	gpuErrchk( cudaMalloc((void **)&d_data, sizeof(mandelbrotData)) );
+
+	gpuErrchk( cudaMemcpy( d_data, &data, sizeof(mandelbrotData), cudaMemcpyHostToDevice ) );
+
+	int threadsPerBlock = 64;
+	auto b = std::chrono::high_resolution_clock::now();
+	mandelbrot<<<data.pixels/threadsPerBlock,threadsPerBlock>>>(d_data,d_result);
+	cudaDeviceSynchronize();
+	auto e = std::chrono::high_resolution_clock::now();
+	cout << (e-b).count()/1000000.0 << " ms." << endl;
+
+	gpuErrchk( cudaMemcpy( result, d_result, data.pixels, cudaMemcpyDeviceToHost ) );
+
+	// writePNG( result, outputFilename, data );
+
+	gpuErrchk( cudaFree(d_result) );
+	gpuErrchk( cudaFree(d_data) );
+	delete[] result;
+
+	return 0;
+}
+
+
+void writePNG( uchar *result, string& outputFilename, mandelbrotData& data )
+{
+	int w = data.width, h = data.height;
+	vector<uchar> rawPixelData(w*h*4);
+	for (int y = 0; y < h; ++y)
+		for (int x = 0; x < w; ++x)
+		{
+			int index = 4*w*y + 4*x;
+			rawPixelData[index] = result[y*w+x] == 255 ? 0 : result[y*w+x]+17;
+			rawPixelData[index+1] = result[y*w+x] == 255 ? 0 : result[y*w+x]+20;
+			rawPixelData[index+2] = result[y*w+x] == 255 ? 0 : result[y*w+x]+40;
+			rawPixelData[index+3] = 255;
+		}
+	unsigned int error = lodepng::encode( outputFilename.c_str(), rawPixelData, w, h );
+	if( error ) cerr << "encoder error " << error << ": " << lodepng_error_text(error) << endl;
+}
