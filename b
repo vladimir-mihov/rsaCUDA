@@ -28,5 +28,6 @@ nvcc $CCOPTS main.cu
 fi
 
 if [[ $@ =~ 'link' ]] ; then
+echo 'Linking ...'
 find . -name '*.o' -exec nvcc $LINKOPTS -o main {} +
 fi
