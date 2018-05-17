@@ -5,9 +5,11 @@ CCOPTS='-c --std=c++11'
 LINKOPTS='--std=c++11 -lboost_program_options'
 
 if [[ $1 == '' ]] ; then
-echo 'Compiling everything'
+echo 'Compiling...'
 find . -name '*.cpp' -execdir $CC $CCOPTS {} \;
 nvcc $CCOPTS main.cu
+echo 'Linking...'
+find . -name '*.o' -exec nvcc $LINKOPTS -o main {} +
 fi
 
 if [[ $1 == 'clean' ]] ; then
