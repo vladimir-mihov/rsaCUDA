@@ -6,7 +6,7 @@
 
 struct programOptions
 {
-	int width, height;
+	int width, height, tCount;
 	float startX, endX, startY, endY;
 	std::string outputFilename;
 	bool quiet;

@@ -24,6 +24,8 @@ __global__ void mandelbrot( mandelbrotData *data, uchar *result ) {
 	int col = index % data->width;
 	int row = index / data->width;
 
+	if( col > data->width-1 || row > data->height-1 ) return;
+
 	double	c_re = data->startX + col*data->stepX,
 			c_im = data->startY - row*data->stepY,
 			x = 0, y = 0;
@@ -49,6 +51,7 @@ int main( int argc, char ** argv ) {
 	// initial variables
 	uchar *result, *d_result;
 	mandelbrotData data, *d_data;
+	int threadsPerBlock;
 	string outputFilename;
 	bool quiet;
 
@@ -63,6 +66,7 @@ int main( int argc, char ** argv ) {
 			return 1;
 		}
 		data = mandelbrotData( opts.width, opts.height, opts.startX, opts.endX, opts.startY, opts.endY );
+		threadsPerBlock = opts.tCount;
 		outputFilename = opts.outputFilename;
 		quiet = opts.quiet;
 	}
@@ -74,9 +78,8 @@ int main( int argc, char ** argv ) {
 
 	gpuErrchk( cudaMemcpy( d_data, &data, sizeof(mandelbrotData), cudaMemcpyHostToDevice ) );
 
-	int threadsPerBlock = 1024;
 	auto b = std::chrono::high_resolution_clock::now();
-	mandelbrot<<<data.pixels/threadsPerBlock,threadsPerBlock>>>(d_data,d_result);
+	mandelbrot<<<(data.pixels+threadsPerBlock-1)/threadsPerBlock,threadsPerBlock>>>(d_data,d_result);
 	cudaDeviceSynchronize();
 	auto e = std::chrono::high_resolution_clock::now();
 	cout << (e-b).count()/1000000.0 << " ms." << endl;
