@@ -86,7 +86,7 @@ int main( int argc, char ** argv ) {
 
 	gpuErrchk( cudaMemcpy( result, d_result, data.pixels, cudaMemcpyDeviceToHost ) );
 
-	// writePNG( result, outputFilename, data );
+	writePNG( result, outputFilename, data );
 
 	gpuErrchk( cudaFree(d_result) );
 	gpuErrchk( cudaFree(d_data) );
