@@ -91,7 +91,6 @@ int main( int argc, char ** argv ) {
 
 	gpuErrchk( cudaMemcpy( result, d_result, data.pixels, cudaMemcpyDeviceToHost ) );
 
-	//cout << (quiet ? "" : "Done. It took ")
 	//cout << (quiet ? "" : "Generating png image.\n");
 	//auto t3 = NOW;
 	//writePNG( result, outputFilename, data );
