@@ -64,7 +64,7 @@ int main( int argc, char ** argv ) {
 		try {
 			opts = cmd.parse(argc,argv);
 		} catch ( const exception& e ) {
-			cout << e.what() << endl;
+			cerr << e.what() << endl;
 			return 1;
 		}
 		data = mandelbrotData( opts.width, opts.height, opts.startX, opts.endX, opts.startY, opts.endY );
@@ -91,6 +91,7 @@ int main( int argc, char ** argv ) {
 
 	gpuErrchk( cudaMemcpy( result, d_result, data.pixels, cudaMemcpyDeviceToHost ) );
 
+	cout << (quiet ? "" : "Done. It took ")
 	//cout << (quiet ? "" : "Generating png image.\n");
 	//auto t3 = NOW;
 	//writePNG( result, outputFilename, data );
