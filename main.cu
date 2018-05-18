@@ -7,6 +7,8 @@
 #include "parser/parser.hpp"
 #include "lodepng/lodepng.h"
 
+#define NOW chrono::high_resolution_clock::now()
+
 using uchar = unsigned char;
 using namespace std;
 
@@ -70,23 +72,31 @@ int main( int argc, char ** argv ) {
 		outputFilename = opts.outputFilename;
 		quiet = opts.quiet;
 	}
+	cout << (quiet ? "" : "Done parsing command line arguments.\n");
 
 	result = new uchar[data.pixels];
 
+	cout << (quiet ? "" : "Allocating memory on the GPU.\n");
 	gpuErrchk( cudaMalloc((void **)&d_result, data.pixels) );
 	gpuErrchk( cudaMalloc((void **)&d_data, sizeof(mandelbrotData)) );
 
 	gpuErrchk( cudaMemcpy( d_data, &data, sizeof(mandelbrotData), cudaMemcpyHostToDevice ) );
 
-	auto b = std::chrono::high_resolution_clock::now();
+	cout << (quiet ? "" : "Calculating mandelbrot.\n");
+	auto t1 = NOW;
 	mandelbrot<<<(data.pixels+threadsPerBlock-1)/threadsPerBlock,threadsPerBlock>>>(d_data,d_result);
 	cudaDeviceSynchronize();
-	auto e = std::chrono::high_resolution_clock::now();
-	cout << (e-b).count()/1000000.0 << " ms." << endl;
+	auto t2 = NOW;
+	cout << (quiet ? "" : "Done. It took ") << (t2-t1).count()/1000000.0 << " ms.\n";
 
 	gpuErrchk( cudaMemcpy( result, d_result, data.pixels, cudaMemcpyDeviceToHost ) );
 
-	writePNG( result, outputFilename, data );
+	//cout << (quiet ? "" : "Generating png image.\n");
+	//auto t3 = NOW;
+	//writePNG( result, outputFilename, data );
+	//auto t4 = NOW;
+	//if( !quiet )
+	//	cout << "Done. It took " << (t4-t3).count()/1000000.0 << " ms.\n";
 
 	gpuErrchk( cudaFree(d_result) );
 	gpuErrchk( cudaFree(d_data) );
