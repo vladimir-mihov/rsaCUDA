@@ -19,24 +19,25 @@ inline void gpuAssert(cudaError_t code, const char *file, int line)
    }
 }
 
-__device__ __forceinline__ cuDoubleComplex cuExp( cuDoubleComplex z )
-{
-	double t = exp( z.x );
-	return make_cuDoubleComplex( t*cos(z.y), t*sin(z.y) );
-}
-
 __global__ void mandelbrot( mandelbrotData *data, uchar *result ) {
 	int index = blockDim.x*blockIdx.x + threadIdx.x;
 	int col = index % data->width;
 	int row = index / data->width;
 
-	cuDoubleComplex c = make_cuDoubleComplex( data->startX + col*data->stepX, data->startY - row*data->stepY ),
-					z = make_cuDoubleComplex( 0.0, 0.0 );
+	double	c_re = data->startX + col*data->stepX,
+			c_im = data->startY - row*data->stepY,
+			x = 0, y = 0;
+
 	uchar iterations = 0;
 
-	while( z.x*z.x+z.y*z.y < 4 && iterations < 255 )
+	while( x*x+y*y < 4 && iterations < 255 )
 	{
-		z = cuCsub( cuExp(z), c );
+		double expX = exp(x), sinY, cosY;
+		sincos(y,&sinY,&cosY);
+		
+		double xNew = expX*cosY - c_re;
+		y = expX*sinY - c_im;
+		x = xNew;
 		iterations++;
 	}
 	result[index] = iterations;
@@ -73,7 +74,7 @@ int main( int argc, char ** argv ) {
 
 	gpuErrchk( cudaMemcpy( d_data, &data, sizeof(mandelbrotData), cudaMemcpyHostToDevice ) );
 
-	int threadsPerBlock = 64;
+	int threadsPerBlock = 1024;
 	auto b = std::chrono::high_resolution_clock::now();
 	mandelbrot<<<data.pixels/threadsPerBlock,threadsPerBlock>>>(d_data,d_result);
 	cudaDeviceSynchronize();
