@@ -16,7 +16,7 @@ fi
 if [[ $1 == 'clean' ]] ; then
 echo 'Cleaning object and executable files ...'
 find . -name '*.o' -exec rm -f {} +
-rm -f main
+rm -f main zad15.png
 fi
 
 if [[ $@ =~ 'parser' ]] ; then
