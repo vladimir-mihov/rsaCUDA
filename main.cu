@@ -90,12 +90,14 @@ int main( int argc, char ** argv ) {
 
 	gpuErrchk( cudaMemcpy( result, d_result, data.pixels, cudaMemcpyDeviceToHost ) );
 
-	//cout << (quiet ? "" : "Generating png image.\n");
-	//auto t3 = NOW;
-	//writePNG( result, outputFilename, data );
-	//auto t4 = NOW;
-	//if( !quiet )
-	//	cout << "Done. It took " << chrono::duration<double,milli>(t4-t3).count() << " ms.\n";
+#ifdef DRAW
+	cout << (quiet ? "" : "Generating png image.\n");
+	auto t3 = NOW;
+	writePNG( result, outputFilename, data );
+	auto t4 = NOW;
+	if( !quiet )
+		cout << "Done. It took " << chrono::duration<double,milli>(t4-t3).count() << " ms.\n";
+#endif
 
 	gpuErrchk( cudaFree(d_result) );
 	gpuErrchk( cudaFree(d_data) );
