@@ -86,7 +86,7 @@ int main( int argc, char ** argv ) {
 	mandelbrot<<<(data.pixels+threadsPerBlock-1)/threadsPerBlock,threadsPerBlock>>>(d_data,d_result);
 	cudaDeviceSynchronize();
 	auto t2 = NOW;
-	cout << (quiet ? "" : "Done. It took ") << (t2-t1).count()/1000000.0 << " ms.\n";
+	cout << (quiet ? "" : "Done. It took ") << chrono::duration<double,milli>(t2-t1).count() << " ms.\n";
 
 	gpuErrchk( cudaMemcpy( result, d_result, data.pixels, cudaMemcpyDeviceToHost ) );
 
@@ -95,7 +95,7 @@ int main( int argc, char ** argv ) {
 	//writePNG( result, outputFilename, data );
 	//auto t4 = NOW;
 	//if( !quiet )
-	//	cout << "Done. It took " << (t4-t3).count()/1000000.0 << " ms.\n";
+	//	cout << "Done. It took " << chrono::duration<double,milli>(t4-t3).count() << " ms.\n";
 
 	gpuErrchk( cudaFree(d_result) );
 	gpuErrchk( cudaFree(d_data) );
