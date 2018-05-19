@@ -25,7 +25,7 @@ programOptions parser::parse( int ac, char **av )
 		("rect,r", po::value<string>(&rect), "Part of 2D space. Format - a:b:c:d => x from (a,b) and y from (c,d). Defaults to -2.0:2.0:-2.0:2.0.")
 		("output,o", po::value<string>(&output), "Output file. Defaults to zad15.png.")
 		("tasks,t", po::value<int>(&tCount), "Number of threads per block. Defaults to 128.")	
-		("quiet,q", "Quiet mode. Default behavious is noisy-mode.")
+		("verbose,v", "Verbose mode. Default behavious is quiet-mode.")
 		("help,h", "Prints this help massage.")
 		;
 
@@ -81,10 +81,10 @@ programOptions parser::parse( int ac, char **av )
 	else
 		opts.tCount = 128;
 
-	if( vm.count("quiet") )
-		opts.quiet = true;
+	if( vm.count("verbose") )
+		opts.verbose = true;
 	else
-		opts.quiet = false;
+		opts.verbose = false;
 
 	return opts;
 }

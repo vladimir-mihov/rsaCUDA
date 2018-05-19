@@ -54,7 +54,7 @@ int main( int argc, char ** argv ) {
 	mandelbrotData data, *d_data;
 	int threadsPerBlock;
 	string outputFilename;
-	bool quiet;
+	bool verbose;
 
 	// initialize variables without leaving junk
 	{
@@ -69,33 +69,33 @@ int main( int argc, char ** argv ) {
 		data = mandelbrotData( opts.width, opts.height, opts.startX, opts.endX, opts.startY, opts.endY );
 		threadsPerBlock = opts.tCount;
 		outputFilename = opts.outputFilename;
-		quiet = opts.quiet;
+		verbose = opts.verbose;
 	}
-	cout << (quiet ? "" : "Done parsing command line arguments.\n");
+	cout << (verbose ? "Done parsing command line arguments.\n" : "");
 
 	result = new uchar[data.pixels];
 
-	cout << (quiet ? "" : "Allocating memory on the GPU.\n");
+	cout << (verbose ? "Allocating memory on the GPU.\n" : "");
 	gpuErrchk( cudaMalloc((void **)&d_result, data.pixels) );
 	gpuErrchk( cudaMalloc((void **)&d_data, sizeof(mandelbrotData)) );
 
 	gpuErrchk( cudaMemcpy( d_data, &data, sizeof(mandelbrotData), cudaMemcpyHostToDevice ) );
 
-	cout << (quiet ? "" : "Calculating mandelbrot.\n");
+	cout << (verbose ? "Calculating mandelbrot.\n" : "");
 	auto t1 = NOW;
 	mandelbrot<<<(data.pixels+threadsPerBlock-1)/threadsPerBlock,threadsPerBlock>>>(d_data,d_result);
 	cudaDeviceSynchronize();
 	auto t2 = NOW;
-	cout << (quiet ? "" : "Done. It took ") << chrono::duration<double,milli>(t2-t1).count() << " ms.\n";
+	cout << (verbose ? "Done. It took " : "") << chrono::duration<double,milli>(t2-t1).count() << " ms.\n" : "";
 
 	gpuErrchk( cudaMemcpy( result, d_result, data.pixels, cudaMemcpyDeviceToHost ) );
 
 #ifdef DRAW
-	cout << (quiet ? "" : "Generating png image.\n");
+	cout << (verbose ? "Generating png image.\n" : "");
 	auto t3 = NOW;
 	writePNG( result, outputFilename, data );
 	auto t4 = NOW;
-	if( !quiet )
+	if( verbose )
 		cout << "Done. It took " << chrono::duration<double,milli>(t4-t3).count() << " ms.\n";
 #endif
 
