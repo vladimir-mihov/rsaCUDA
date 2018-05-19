@@ -1,6 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <math.h>
+#include <vector>
 #include "mandelbrotData.hpp"
 #include "parser/parser.hpp"
 #include "lodepng/lodepng.h"
