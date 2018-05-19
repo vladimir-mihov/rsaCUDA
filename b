@@ -1,7 +1,7 @@
 #! /bin/bash
 
 CC='g++'
-NVCC='/usr/local/cuda/bin/nvcc'
+NVCC='nvcc'
 CCOPTS='-c --std=c++11'
 LINKOPTS='--std=c++11 -lboost_program_options'
 
