@@ -42,7 +42,7 @@ programOptions parser::parse( int ac, char **av )
 	if( vm.count("size") )
 	{
 		vector<int> dimensions = split( size, "x", &atoi );
-		if( dimensions.size() != 2 ) throw invalid_argument("Format for size is '-s 2000x2000' for example.");
+		if( dimensions.size() != 2 ) throw invalid_argument("Format for size is '-s 2000x2000' for example.\n");
 		opts.width = dimensions[0]; opts.height = dimensions[1];
 	}
 	else
@@ -54,7 +54,7 @@ programOptions parser::parse( int ac, char **av )
 	if( vm.count("rect") )
 	{
 		vector<double> area = split( rect, ":", atof );
-		if( area.size() != 4 ) throw invalid_argument("Format for rect is '-r -1:1:-1:1' for example.");
+		if( area.size() != 4 ) throw invalid_argument("Format for rect is '-r -1:1:-1:1' for example.\n");
 		opts.startX = area[0];
 		opts.endX = area[1];
 		opts.startY = area[2];
@@ -70,7 +70,7 @@ programOptions parser::parse( int ac, char **av )
 
 	if( vm.count("output") )
 	{
-		if( output.substr(output.size()-4) != ".png" ) throw invalid_argument("Output image can only be in png format.");
+		if( output.substr(output.size()-4) != ".png" ) throw invalid_argument("Output image can only be in png format.\n");
 		opts.outputFilename = output;
 	}
 	else

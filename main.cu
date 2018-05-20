@@ -66,7 +66,7 @@ int main( int argc, char ** argv ) {
 		try {
 			opts = cmd.parse(argc,argv);
 		} catch ( const exception& e ) {
-			cerr << e.what() << endl;
+			cerr << e.what();
 			return 1;
 		}
 		data = mandelbrotData( opts.width, opts.height, opts.startX, opts.endX, opts.startY, opts.endY );
