@@ -24,7 +24,7 @@ programOptions parser::parse( int ac, char **av )
 		("size,s", po::value<string>(&size), "size of the generated image. Format: WIDTHxHEIGHT. Defaults to 640x480.")
 		("rect,r", po::value<string>(&rect), "Part of 2D space. Format - a:b:c:d => x from (a,b) and y from (c,d). Defaults to -2.0:2.0:-2.0:2.0.")
 		("output,o", po::value<string>(&output), "Output file. Defaults to zad15.png.")
-		("tasks,t", po::value<int>(&tCount), "Number of threads per block. Defaults to 128.")	
+		("tasks,t", po::value<int>(&tCount), "Number of threads per block. Defaults to 1.")	
 		("verbose,v", "Verbose mode. Default behavious is quiet-mode.")
 		("help,h", "Prints this help massage.")
 		;
@@ -79,7 +79,7 @@ programOptions parser::parse( int ac, char **av )
 	if( vm.count("tasks") )
 		opts.tCount = tCount;
 	else
-		opts.tCount = 128;
+		opts.tCount = 1;
 
 	if( vm.count("verbose") )
 		opts.verbose = true;
