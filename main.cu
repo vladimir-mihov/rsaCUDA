@@ -79,7 +79,7 @@ int main( int argc, char ** argv ) {
 	result = new uchar[data.pixels];
 
 	cout << (verbose ? "Allocating memory on the GPU.\n" : "");
-	gpuErrchk( cudaMalloc((void **)&d_result, data.pixels) );
+	gpuErrchk( cudaMalloc((void **)&d_result, data.pixels*sizeof(uchar)) );
 	gpuErrchk( cudaMalloc((void **)&d_data, sizeof(mandelbrotData)) );
 
 	gpuErrchk( cudaMemcpy( d_data, &data, sizeof(mandelbrotData), cudaMemcpyHostToDevice ) );
@@ -91,7 +91,7 @@ int main( int argc, char ** argv ) {
 	auto t2 = NOW;
 	cout << (verbose ? "Done. It took " : "") << chrono::duration<double,milli>(t2-t1).count() << " ms.\n";
 
-	gpuErrchk( cudaMemcpy( result, d_result, data.pixels, cudaMemcpyDeviceToHost ) );
+	gpuErrchk( cudaMemcpy( result, d_result, data.pixels*sizeof(uchar), cudaMemcpyDeviceToHost ) );
 
 #ifdef DRAW
 	cout << (verbose ? "Generating png image.\n" : "");
