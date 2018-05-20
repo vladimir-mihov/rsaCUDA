@@ -21,9 +21,10 @@ inline void gpuAssert(cudaError_t code, const char *file, int line)
 }
 
 __global__ void mandelbrot( mandelbrotData *data, uchar *result ) {
-	int index = blockDim.x*blockIdx.x + threadIdx.x;
-	int col = index % data->width;
-	int row = index / data->width;
+	int	index = blockDim.x*blockIdx.x + threadIdx.x,
+		col = index % data->width,
+		row = index / data->width;
+
 
 	if( col > data->width-1 || row > data->height-1 ) return;
 
@@ -46,7 +47,9 @@ __global__ void mandelbrot( mandelbrotData *data, uchar *result ) {
 	result[index] = iterations;
 }
 
+#ifdef DRAW
 void writePNG( uchar *result, string& outputFilename, mandelbrotData& data );
+#endif
 
 int main( int argc, char ** argv ) {
 	// initial variables
@@ -106,7 +109,7 @@ int main( int argc, char ** argv ) {
 	return 0;
 }
 
-
+#ifdef DRAW
 void writePNG( uchar *result, string& outputFilename, mandelbrotData& data )
 {
 	int w = data.width, h = data.height;
@@ -123,3 +126,4 @@ void writePNG( uchar *result, string& outputFilename, mandelbrotData& data )
 	unsigned int error = lodepng::encode( outputFilename.c_str(), rawPixelData, w, h );
 	if( error ) cerr << "encoder error " << error << ": " << lodepng_error_text(error) << endl;
 }
+#endif
