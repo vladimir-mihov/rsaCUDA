@@ -53,7 +53,7 @@ programOptions parser::parse( int ac, char **av )
 
 	if( vm.count("rect") )
 	{
-		vector<double> area = split( rect, ":", atof );
+		vector<double> area = split( rect, ":", &atof );
 		if( area.size() != 4 ) throw invalid_argument("Format for rect is '-r -1:1:-1:1' for example.\n");
 		opts.startX = area[0];
 		opts.endX = area[1];
