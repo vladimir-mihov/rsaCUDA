@@ -118,9 +118,10 @@ void writePNG( uchar *result, string& outputFilename, mandelbrotData& data )
 		for (int x = 0; x < w; ++x)
 		{
 			int index = 4*w*y + 4*x;
-			rawPixelData[index] = result[y*w+x] == 255 ? 0 : result[y*w+x]+17;
-			rawPixelData[index+1] = result[y*w+x] == 255 ? 0 : result[y*w+x]+20;
-			rawPixelData[index+2] = result[y*w+x] == 255 ? 0 : result[y*w+x]+40;
+			uchar resultElement = result[y*w+x];
+			rawPixelData[index] = resultElement == 255 ? 0 : resultElement+17;
+			rawPixelData[index+1] = resultElement == 255 ? 0 : resultElement+20;
+			rawPixelData[index+2] = resultElement == 255 ? 0 : resultElement+40;
 			rawPixelData[index+3] = 255;
 		}
 	unsigned int error = lodepng::encode( outputFilename.c_str(), rawPixelData, w, h );
