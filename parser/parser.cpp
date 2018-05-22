@@ -22,7 +22,7 @@ programOptions parser::parse( int ac, char **av )
 	po::options_description desc("Allowed options");
 	desc.add_options()
 		("size,s", po::value<string>(&size), "size of the generated image. Format: WIDTHxHEIGHT. Defaults to 640x480.")
-		("rect,r", po::value<string>(&rect), "Part of 2D space. Format - a:b:c:d => x from (a,b) and y from (c,d). Defaults to -2.0:2.0:-2.0:2.0.")
+		("rect,r", po::value<string>(&rect), "Part of 2D space. Format - a:b:c:d => x from (a,b) and y from (c,d). Defaults to -1.0:3.0:-2.0:2.0.")
 		("output,o", po::value<string>(&output), "Output PNG image. Defaults to zad15.png.")
 		("tasks,t", po::value<int>(&tCount), "Number of threads per block. Defaults to 1.")	
 		("verbose,v", "Verbose mode. Default behavious is quiet-mode.")
@@ -62,9 +62,9 @@ programOptions parser::parse( int ac, char **av )
 	}
 	else
 	{
-		opts.startX = -2.0;
+		opts.startX = -1.0;
 		opts.startY = 2.0;
-		opts.endX = 2.0;
+		opts.endX = 3.0;
 		opts.endY = -2.0;
 	}
 
