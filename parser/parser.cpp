@@ -71,8 +71,8 @@ programOptions parser::parse( int ac, char **av )
 
 	if( vm.count("zoom") )
 	{
-		double	xOffset = opts.width*(1.0-1.0/zoom)/2.0,
-				yOffset = opts.height*(1.0-1.0/zoom)/2.0;
+		double	xOffset = (opts.endX-opts.startX)*(1.0-1.0/zoom)/2.0,
+				yOffset = (opts.startY-opts.endY)*(1.0-1.0/zoom)/2.0;
 		opts.startX += xOffset;
 		opts.endX -= xOffset;
 		opts.startY -= yOffset;
