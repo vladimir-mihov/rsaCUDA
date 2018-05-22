@@ -7,6 +7,7 @@
 #include "lodepng/lodepng.h"
 
 #define NOW chrono::high_resolution_clock::now()
+#define DRAW
 
 using uchar = unsigned char;
 using namespace std;
@@ -48,7 +49,7 @@ __global__ void mandelbrot( mandelbrotData *data, uchar *result ) {
 }
 
 #ifdef DRAW
-void writePNG( uchar *result, string& outputFilename, mandelbrotData& data );
+void writePNG( uchar *result, programOptions& opts );
 #endif
 
 int main( int argc, char ** argv ) {
@@ -90,7 +91,7 @@ int main( int argc, char ** argv ) {
 #ifdef DRAW
 	cout << (opts.verbose ? "Generating png image.\n" : "");
 	auto t3 = NOW;
-	writePNG( result, opts.outputFilename, data );
+	writePNG( result, opts );
 	auto t4 = NOW;
 	if( opts.verbose )
 		cout << "Done. It took " << chrono::duration<double,milli>(t4-t3).count() << " ms.\n";
@@ -113,8 +114,8 @@ void writePNG( uchar *result, programOptions& opts )
 		{
 			int index = 4*w*y + 4*x;
 			uchar resultElement = result[y*w+x];
-			rawPixelData[index] = resultElement == 255 ? opts.setColor & 0xff0000 : ( resultElement % 2 ? opts.nonSetColor1 & 0xff0000 : opts.nonSetColor2 & 0xff0000 );
-			rawPixelData[index+1] = resultElement == 255 ? opts.setColor & 0xff00 : ( resultElement % 2 ? opts.nonSetColor1 & 0xff00 : opts.nonSetColor2 & 0xff00 );
+			rawPixelData[index] = resultElement == 255 ? (opts.setColor & 0xff0000)>>16 : ( resultElement % 2 ? (opts.nonSetColor1 & 0xff0000)>>16 : (opts.nonSetColor2 & 0xff0000)>>16 );
+			rawPixelData[index+1] = resultElement == 255 ? (opts.setColor & 0xff00)>>8: ( resultElement % 2 ? (opts.nonSetColor1 & 0xff00)>>8 : (opts.nonSetColor2 & 0xff00)>>8 );
 			rawPixelData[index+2] = resultElement == 255 ? opts.setColor & 0xff : ( resultElement % 2 ? opts.nonSetColor1 & 0xff : opts.nonSetColor2 & 0xff );
 			rawPixelData[index+3] = 255;
 		}
