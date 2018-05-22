@@ -6,7 +6,7 @@
 
 struct programOptions
 {
-	int width, height, tCount;
+	int width, height, threadsPerBlock, nonSetColor1, nonSetColor2, setColor;
 	float startX, endX, startY, endY;
 	std::string outputFilename;
 	bool verbose;

@@ -18,12 +18,14 @@ programOptions parser::parse( int ac, char **av )
 	programOptions opts;
 	string size,rect,output;
 	int tCount,zoom;
+	vector<string> colors;
 
 	po::options_description desc("Allowed options");
 	desc.add_options()
 		("size,s", po::value<string>(&size), "Size of the generated image. Format: WIDTHxHEIGHT. Defaults to 640x480.")
 		("rect,r", po::value<string>(&rect), "Part of 2D space. Format - a:b:c:d => x from (a,b) and y from (c,d). Defaults to -1.0:3.0:-2.0:2.0.")
 		("zoom,z", po::value<int>(&zoom), "Integer indicating the level of zoom.")
+		("colors,c", po::value<vector<string>>(&colors),"3 colors in hex RGB. Format is FFFFFF FFFFFF FFFFFF. First two are main colors of points outside of the set. Third is the color of points in the set. Place 'x' for default color." )
 		("output,o", po::value<string>(&output), "Output PNG image. Defaults to zad15.png.")
 		("tasks,t", po::value<int>(&tCount), "Number of threads per block. Defaults to 1.")	
 		("verbose,v", "Verbose mode. Default behavious is quiet-mode.")
@@ -43,7 +45,7 @@ programOptions parser::parse( int ac, char **av )
 	if( vm.count("size") )
 	{
 		vector<int> dimensions = split( size, "x", &atoi );
-		if( dimensions.size() != 2 ) throw invalid_argument("Format for size is '-s 2000x2000' for example.\n");
+		if( dimensions.size() != 2 ) throw invalid_argument("Format for size is -s 2000x2000 for example.\n");
 		opts.width = dimensions[0]; opts.height = dimensions[1];
 	}
 	else
@@ -55,7 +57,7 @@ programOptions parser::parse( int ac, char **av )
 	if( vm.count("rect") )
 	{
 		vector<double> area = split( rect, ":", &atof );
-		if( area.size() != 4 || area[0] > area[1] || area[2] > area[3] ) throw invalid_argument("Format for rect is '-r -1:1:-1:1' for example.\n");
+		if( area.size() != 4 || area[0] > area[1] || area[2] > area[3] ) throw invalid_argument("Format for rect is -r -1:1:-1:1 for example.\n");
 		opts.startX = area[0];
 		opts.endX = area[1];
 		opts.startY = area[3];
@@ -88,14 +90,22 @@ programOptions parser::parse( int ac, char **av )
 		opts.outputFilename = "zad15.png";
 
 	if( vm.count("tasks") )
-		opts.tCount = tCount;
+		opts.threadsPerBlock = tCount;
 	else
-		opts.tCount = 1;
+		opts.threadsPerBlock = 1;
 
 	if( vm.count("verbose") )
 		opts.verbose = true;
 	else
 		opts.verbose = false;
+
+	if( vm.count("colors") )
+	{
+		if( colors.size() != 3 ) throw invalid_argument("Format for colors is -c x ffffff x for example.");
+		opts.nonSetColor1 = colors[1] == "x" || colors[1] == "X" ? 0xffdab9 : strtoul(colors[1].c_str(), NULL, 16);
+		opts.nonSetColor2 = colors[2] == "x" || colors[2] == "X" ? 0x4a708b : strtoul(colors[2].c_str(), NULL, 16);
+		opts.setColor = colors[3] == "x" || colors[3] == "X" ? 0 : strtoul(colors[3].c_str(), NULL, 16);
+	}
 
 	return opts;
 }
