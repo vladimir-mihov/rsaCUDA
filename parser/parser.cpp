@@ -17,12 +17,13 @@ programOptions parser::parse( int ac, char **av )
 {
 	programOptions opts;
 	string size,rect,output;
-	int tCount;
+	int tCount,zoom;
 
 	po::options_description desc("Allowed options");
 	desc.add_options()
-		("size,s", po::value<string>(&size), "size of the generated image. Format: WIDTHxHEIGHT. Defaults to 640x480.")
+		("size,s", po::value<string>(&size), "Size of the generated image. Format: WIDTHxHEIGHT. Defaults to 640x480.")
 		("rect,r", po::value<string>(&rect), "Part of 2D space. Format - a:b:c:d => x from (a,b) and y from (c,d). Defaults to -1.0:3.0:-2.0:2.0.")
+		("zoom,z", po::value<int>(&zoom), "Integer indicating the level of zoom.")
 		("output,o", po::value<string>(&output), "Output PNG image. Defaults to zad15.png.")
 		("tasks,t", po::value<int>(&tCount), "Number of threads per block. Defaults to 1.")	
 		("verbose,v", "Verbose mode. Default behavious is quiet-mode.")
@@ -54,11 +55,11 @@ programOptions parser::parse( int ac, char **av )
 	if( vm.count("rect") )
 	{
 		vector<double> area = split( rect, ":", &atof );
-		if( area.size() != 4 ) throw invalid_argument("Format for rect is '-r -1:1:-1:1' for example.\n");
+		if( area.size() != 4 || area[0] > area[1] || area[2] > area[3] ) throw invalid_argument("Format for rect is '-r -1:1:-1:1' for example.\n");
 		opts.startX = area[0];
 		opts.endX = area[1];
-		opts.startY = area[2];
-		opts.endY = area[3]; 
+		opts.startY = area[3];
+		opts.endY = area[2];
 	}
 	else
 	{
@@ -66,6 +67,16 @@ programOptions parser::parse( int ac, char **av )
 		opts.startY = 2.0;
 		opts.endX = 3.0;
 		opts.endY = -2.0;
+	}
+
+	if( vm.count("zoom") )
+	{
+		double	xOffset = opts.width*(1.0-1.0/zoom)/2.0,
+				yOffset = opts.height*(1.0-1.0/zoom)/2.0;
+		opts.startX += xOffset;
+		opts.endX -= xOffset;
+		opts.startY -= yOffset;
+		opts.endY += yOffset;
 	}
 
 	if( vm.count("output") )
