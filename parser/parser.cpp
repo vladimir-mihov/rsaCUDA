@@ -20,6 +20,8 @@ programOptions parser::parse( int ac, char **av )
 	int tCount,zoom;
 	vector<string> colors;
 
+	int setDefault = 0, nonSet1Default = 0xffdab9, nonSet2Default = 0x4a708b;
+
 	po::options_description desc("Allowed options");
 	desc.add_options()
 		("size,s", po::value<string>(&size), "Size of the generated image. Format: WIDTHxHEIGHT. Defaults to 640x480.")
@@ -102,9 +104,15 @@ programOptions parser::parse( int ac, char **av )
 	if( vm.count("colors") )
 	{
 		if( colors.size() != 3 ) throw invalid_argument("Format for colors is -c x ffffff x for example.\n");
-		opts.nonSetColor1 = colors[0] == "x" || colors[0] == "X" ? 0xffdab9 : strtoul(colors[0].c_str(), NULL, 16);
-		opts.nonSetColor2 = colors[1] == "x" || colors[1] == "X" ? 0x4a708b : strtoul(colors[1].c_str(), NULL, 16);
-		opts.setColor = colors[2] == "x" || colors[2] == "X" ? 0 : strtoul(colors[2].c_str(), NULL, 16);
+		opts.nonSetColor1 = colors[0] == "x" || colors[0] == "X" ? nonSet1Default : strtoul(colors[0].c_str(), NULL, 16);
+		opts.nonSetColor2 = colors[1] == "x" || colors[1] == "X" ? nonSet2Default : strtoul(colors[1].c_str(), NULL, 16);
+		opts.setColor = colors[2] == "x" || colors[2] == "X" ? setDefault : strtoul(colors[2].c_str(), NULL, 16);
+	}
+	else
+	{
+		opts.nonSetColor1 = nonSet1Defaultl;
+		opts.nonSetColor2 = nonSet2Defaultl;
+		opts.setColor = setDefault;
 	}
 
 	return opts;
