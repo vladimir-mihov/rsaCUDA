@@ -117,7 +117,7 @@ void writePNG( uint8_t *result, programOptions& opts )
 	for (int y = 0; y < h; ++y)
 		for (int x = 0; x < w; ++x)
 		{
-			int index = 4*w*y + 4*x;
+			int index = (w*y+x)*4;
 			uint8_t resultElement = result[y*w+x];
 			*reinterpret_cast<uint32_t*>(&rawPixelData[index]) = resultElement == 255 ? setColor : ( resultElement % 2 ? nonSetColor1 : nonSetColor2 );
 		}
