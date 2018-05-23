@@ -109,7 +109,6 @@ void writePNG( uchar *result, programOptions& opts )
 {
 	int w = opts.width, h = opts.height;
 	vector<uchar> rawPixelData(w*h*4);
-	uchar *dataPointer = rawPixelData.data();
 
 	int	setColor =  (opts.setColor & 0xff0000)>>16 | (opts.setColor & 0xff00) | (opts.setColor & 0xff)<<16 | 0xff<<24,
 		nonSetColor1 = (opts.nonSetColor1 & 0xff0000)>>16 | (opts.nonSetColor1 & 0xff00) | (opts.nonSetColor1 & 0xff)<<16 | 0xff<<24,
@@ -120,7 +119,7 @@ void writePNG( uchar *result, programOptions& opts )
 		{
 			int index = 4*w*y + 4*x;
 			uchar resultElement = result[y*w+x];
-			*reinterpret_cast<int*>(dataPointer+index) = resultElement == 255 ? setColor : ( resultElement % 2 ? nonSetColor1 : nonSetColor2 );
+			*reinterpret_cast<int*>(&rawPixelData[index]) = resultElement == 255 ? setColor : ( resultElement % 2 ? nonSetColor1 : nonSetColor2 );
 		}
 	unsigned int error = lodepng::encode( opts.outputFilename.c_str(), rawPixelData, w, h );
 	if( error ) cerr << "encoder error " << error << ": " << lodepng_error_text(error) << endl;
