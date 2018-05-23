@@ -109,15 +109,17 @@ void writePNG( uchar *result, programOptions& opts )
 {
 	int w = opts.width, h = opts.height;
 	vector<uchar> rawPixelData(w*h*4);
+
+	int	setColor =  (opts.setColor & 0xff0000)<<8 | (opts.setColor & 0xff00)<<8 | (opts.setColor & 0xff)<<8 | 0xff,
+		nonSetColor1 = (opts.nonSetColor1 & 0xff0000)<<8 | (opts.nonSetColor1 & 0xff00)<<8 | (opts.nonSetColor1 & 0xff)<<8 | 0xff,
+		nonSetColor2 = (opts.nonSetColor2 & 0xff0000)<<8 | (opts.nonSetColor2 & 0xff00)<<8 | (opts.nonSetColor2 & 0xff)<<8 | 0xff;
+
 	for (int y = 0; y < h; ++y)
 		for (int x = 0; x < w; ++x)
 		{
 			int index = 4*w*y + 4*x;
 			uchar resultElement = result[y*w+x];
-			rawPixelData[index] = resultElement == 255 ? (opts.setColor & 0xff0000)>>16 : ( resultElement % 2 ? (opts.nonSetColor1 & 0xff0000)>>16 : (opts.nonSetColor2 & 0xff0000)>>16 );
-			rawPixelData[index+1] = resultElement == 255 ? (opts.setColor & 0xff00)>>8: ( resultElement % 2 ? (opts.nonSetColor1 & 0xff00)>>8 : (opts.nonSetColor2 & 0xff00)>>8 );
-			rawPixelData[index+2] = resultElement == 255 ? opts.setColor & 0xff : ( resultElement % 2 ? opts.nonSetColor1 & 0xff : opts.nonSetColor2 & 0xff );
-			rawPixelData[index+3] = 255;
+			*reinterpret_cast<int*>(rawPixelData+index) = resultElement == 255 ? setColor : ( resultElement % 2 ? nonSetColor1 : nonSetColor2 );
 		}
 	unsigned int error = lodepng::encode( opts.outputFilename.c_str(), rawPixelData, w, h );
 	if( error ) cerr << "encoder error " << error << ": " << lodepng_error_text(error) << endl;
