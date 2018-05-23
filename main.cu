@@ -8,7 +8,6 @@
 #include "lodepng/lodepng.h"
 
 #define NOW chrono::high_resolution_clock::now()
-#define DRAW
 
 using namespace std;
 
