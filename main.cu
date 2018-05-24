@@ -14,10 +14,10 @@ using namespace std;
 #define gpuErrchk(ans) { gpuAssert((ans), __FILE__, __LINE__); }
 inline void gpuAssert(cudaError_t code, const char *file, int line)
 {
-   if (code != cudaSuccess) 
-   {
-      fprintf(stderr,"GPUAssert: %s %s %d\n", cudaGetErrorString(code), file, line);
-   }
+	if (code != cudaSuccess)
+	{
+		fprintf(stderr,"GPUAssert: %s %s %d\n", cudaGetErrorString(code), file, line);
+	}
 }
 
 __global__ void mandelbrot( mandelbrotData *data, uint8_t *result ) {
@@ -38,7 +38,7 @@ __global__ void mandelbrot( mandelbrotData *data, uint8_t *result ) {
 	{
 		double expZReal = exp(zReal), sinZImag, cosZImag;
 		sincos(zImag,&sinZImag,&cosZImag);
-		
+
 		double zRealNew = expZReal*cosZImag - cReal;
 		zImag = expZReal*sinZImag - cImag;
 		zReal = zRealNew;
