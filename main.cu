@@ -28,20 +28,20 @@ __global__ void mandelbrot( mandelbrotData *data, uint8_t *result ) {
 
 	if( col > data->width-1 || row > data->height-1 ) return;
 
-	double	c_re = data->startX + col*data->stepX,
-			c_im = data->startY - row*data->stepY,
-			x = 0, y = 0;
+	double	cReal = data->startX + col*data->stepX,
+			cImag = data->startY - row*data->stepY,
+			zReal = 0, zImag = 0;
 
 	uint8_t iterations = 0;
 
-	while( x*x+y*y < 4 && iterations < 255 )
+	while( zReal*zReal+zImag*zImag < 4 && iterations < 255 )
 	{
-		double expX = exp(x), sinY, cosY;
-		sincos(y,&sinY,&cosY);
+		double expZReal = exp(zReal), sinZImag, cosZImag;
+		sincos(zImag,&sinZImag,&cosZImag);
 		
-		double xNew = expX*cosY - c_re;
-		y = expX*sinY - c_im;
-		x = xNew;
+		double zRealNew = expZReal*cosZImag - cReal;
+		zImag = expZReal*sinZImag - cImag;
+		zReal = zRealNew;
 		iterations++;
 	}
 	result[index] = iterations;
