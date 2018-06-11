@@ -104,7 +104,6 @@ programOptions parser::parse( int ac, char **av )
 	if( vm.count("colors") )
 	{
 		if( colors.size() != 3 ) throw invalid_argument("Format for colors is -c x ffffff x for example.\n");
-	cout << hex << opts.setColor << endl << opts.nonSetColor1 << endl << opts.nonSetColor2 << endl;
 		opts.nonSetColor1 = colors[0] == "x" || colors[0] == "X" ? nonSet1Default : strtoul(colors[0].c_str(), NULL, 16);
 		opts.nonSetColor2 = colors[1] == "x" || colors[1] == "X" ? nonSet2Default : strtoul(colors[1].c_str(), NULL, 16);
 		opts.setColor = colors[2] == "x" || colors[2] == "X" ? setDefault : strtoul(colors[2].c_str(), NULL, 16);
