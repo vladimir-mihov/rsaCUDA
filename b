@@ -3,7 +3,7 @@
 CC='g++'
 NVCC='nvcc'
 CCOPTS='-c --std=c++11'
-LINKOPTS='--std=c++11 -lboost_program_options'
+LINKOPTS='-lboost_program_options'
 
 if [[ $1 == '' ]] ; then
 echo 'Compiling ...'
